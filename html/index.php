@@ -131,7 +131,7 @@ You dont have to login to tweet it from here. But make sure not to spam the comm
 	<!-- start of middle form-->
 					<h3>Tweet your blood request:</h3>
 
-					<form action="http://tweet4blood.com/index.php" method="post" onSubmit="return validateTweet();">
+					<form action="" method="post" onchange="previewTweet();" onSubmit="return validateTweet();">
 					<p> <label>Req</label><select id="group" name="group"><option value="A+VE">A+VE</option><option value="A-VE">A-VE</option><option value="B+VE">B+VE</option><option value="B-VE">B-VE</option><option value="AB+VE">AB+VE</option><option value="AB-VE">AB-VE</option><option value="O+VE">O+VE</option><option value="O-VE">O-VE</option><option value="Any GRP">ANY</option></select>
 					&nbsp;<label>at</label><input size="25" maxlength="25" id="city" name="city" type="input" class="text" > city.</p>
 
@@ -147,27 +147,31 @@ echo recaptcha_get_html($publickey);
 
 	
 	<span id="preview"  class="span-12 prepend-1" ></span>
-					<p><input type="button" value="preview" onclick="previewTweet();"/>
-
-					<input type="submit" name="tweet" value="tweet" /></p>
+					<p><input type="submit" name="tweet" value="tweet" /></p>
 					
 <?php
-if ($_POST["tweet"]) {
+if (isset($_POST["tweet"])) {
 $resp = recaptcha_check_answer ($privatekey,
                                   $_SERVER["REMOTE_ADDR"],
                                   $_POST["recaptcha_challenge_field"],
                                   $_POST["recaptcha_response_field"]);
 	if ($resp->is_valid) {
-		require_once('twitter.lib.php');
-		$uid ="tweet4blood";
-		$pw = " your password";
-		$twitter = new Twitter($uid, $pw);
+		require_once('./auth/twitteroauth/twitteroauth.php');
+		require_once('./auth/config.php');
+
+		$twitter = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET);
 		$statusMsg = "REQ ".$_POST["group"]." AT #".$_POST["city"]." .CONTACT ".$_POST["contact"]." ".$_POST["info"];
 		echo $statusMsg."<br>";
-		$twitter->updateStatus($statusMsg);
-		echo "<span><b><font color=green>Your message is tweeted to <a href='http://twitter.com/tweet4blood'>@tweet4blood</a> community.</font></b></span>";
+		$parameters = array('status' => $statusMsg);
+		$twitter->post('statuses/update', $parameters);
+		if( in_array($twitter->http_code , array(200,302)) ){
+			echo "<p><b><font color=green>Your message is tweeted to <a href='http://twitter.com/tweet4blood'>@tweet4blood</a> community.</font></b></p>";
+		}
+		else{
+			echo "<p>There was some error tweeting.. twitter might be down.</p>$twitter->http_code";
+		}
 	}else{
-		echo "<span><b><font color=red>Captch is not valid. We could not tweet the message. Try again.</font></b></span>";
+		echo "<span><b><font color=red>Captcha is not valid. We could not tweet the message. Try again.</font></b></span>";
 	}
 }
 ?>					
