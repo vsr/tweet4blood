@@ -1,7 +1,6 @@
-Abraham Williams | abraham@poseurte.ch | http://abrah.am | @abraham
-
-The first PHP library for working with Twitter's OAuth API.
-
-Documentation: http://wiki.github.com/abraham/twitteroauth/documentation 
-Source: http://github.com/abraham/twitteroauth
-Twitter: http://apiwiki.twitter.com
+To configure an account to tweet:
+1. Register a twitter application at http://dev.twitter.com/apps/new
+    Access type must be Read & Write; callback url should be "SITES_ABSOLUTE_PATH/auth/callback.php"
+2. Update config.php with consumer key, consumer secret & oauth callback url.
+3. Visit index.php, sign in with twitter. After auth-ing, you'll get oauth token & oauth token secret which has to be updated in config.php.
+That's it! 
